@@ -4,6 +4,13 @@ float tempC;
 int reading;
 
 uint32_t mill=0;
+int tempVar=0;
+
+int var1=0;
+int var2=0;
+int var3=0;
+//int var4=0;
+
 
 //Пин подключен к SH_CP входу 74HC595
 int clockPin = 6;
@@ -20,12 +27,19 @@ byte numbers_array[12] = {
     B01100110, B01101101, B01111101, B00000111, // 4 5 6 7
     B01111111, B01101111, B01000000, B01100011 // 8 9 - о
   };
+  // Биты для отображения цифер от 0-9, минуса и символ градуса цельсия с точкой
+byte numbers_arrayDot[12] = {
+    B10111111, B10000110, B11011011, B11001111, // 0. 1. 2. 3.
+    B11100110, B11101101, B11111101, B10000111, // 4. 5. 6. 7.
+    B11111111, B11101111, B11000000, B11100011 // 8. 9. -. о.
+  };
 
 
 void showNumber(int numNumber, int number){
   // зажигаем нужные сегменты 
   digitalWrite(latchPin, LOW);
-  shiftOut(dataPin, clockPin, MSBFIRST, numbers_array[number]); 
+  if(numNumber==3) shiftOut(dataPin, clockPin, MSBFIRST, numbers_arrayDot[number]); 
+  else             shiftOut(dataPin, clockPin, MSBFIRST, numbers_array[number]); 
   digitalWrite(latchPin, HIGH);
  
   // включаем нужный разряд(одну из четырех цифр)
@@ -61,15 +75,24 @@ if(millis()-mill>1000){
   reading = analogRead(A0);        // получаем значение с аналогового входа A0
   tempC = reading / 9.31;          // переводим в цельсии 
   Serial.print(tempC);            // отправляем в монитор порта
-  Serial.println(" C");
+  Serial.print(" C   ");
+
+  tempVar=tempC*100;
+  var1 = tempVar / 1000;
+  var2 = tempVar % 1000 / 100;
+  var3 = tempVar % 100 / 10;
+  //var4 = tempVar % 10;
+
+
 }
+
 
 
  // включить сразу несколько цифр нельзя, поэтому очень быстро показываем по одной
   showNumber(1, 11);
-  showNumber(2, 7);
-  showNumber(3, 2);
-  showNumber(4, 10);
+  showNumber(2, var3);
+  showNumber(3, var2);
+  showNumber(4, var1);
 }
   
 
