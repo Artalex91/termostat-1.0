@@ -1,10 +1,13 @@
 #include <Arduino.h>
 
+const int SWPin=3;
+const int CLKPin=2;
+const int DTPin=11;
+volatile int encCounter;
+volatile boolean state0, lastState, turnFlag;
+
 const int relePin=13;
 bool rele=false;
-
-
-
 
 float tempC;
 int reading;
@@ -19,14 +22,14 @@ int var3=0;
 
 
 //Пин подключен к SH_CP входу 74HC595
-const int clockPin = 6;
+const int clockPin = 8;
 //Пин подключен к ST_CP входу 74HC595
-const int latchPin = 7;
+const int latchPin = 9;
 //Пин подключен к DS входу 74HC595
-const int dataPin = 8;
+const int dataPin = 10;
  
 // Пины разрядов цифер
-const int pins_numbers[4] = {2, 3, 4, 5};
+const int pins_numbers[4] = {4, 5, 6, 7};
 // Биты для отображения цифер от 0-9, минуса и символ градуса цельсия
 byte numbers_array[12] = {
     B00111111, B00000110, B01011011, B01001111, // 0 1 2 3
@@ -60,8 +63,22 @@ void showNumber(int numNumber, int number){
   delay(5);
 }
 
+void encoder() {
+state0 = digitalRead(CLKPin);
+if (state0 != lastState) {
+encCounter += (digitalRead(DTPin) != lastState) ? -1 : 1;
+
+lastState = state0;
+}
+}
+
   
 void setup() {
+  pinMode(SWPin, INPUT_PULLUP);
+  pinMode(CLKPin, INPUT);
+  pinMode(DTPin, INPUT);
+  attachInterrupt(0, encoder, CHANGE);
+
   analogReference(INTERNAL);        // включаем внутрений источник опорного 1,1 вольт
   Serial.begin(9600);
     
@@ -77,6 +94,7 @@ void setup() {
 }
   
 void loop() {
+
   if(millis()-mill>1000){
       mill=millis();
     reading = analogRead(A0);        // получаем значение с аналогового входа A0
@@ -99,10 +117,18 @@ void loop() {
 
 
  // включить сразу несколько цифр нельзя, поэтому очень быстро показываем по одной
-  showNumber(1, 11);   // 4я
+  //showNumber(1, 11);   // 4я
   showNumber(2, var3); // 3я
   showNumber(3, var2); // 2я
   showNumber(4, var1); // 1я
+
+
+ 
+
+
+showNumber(1, encCounter);   // 4я
+
+ 
 }
   
 
