@@ -19,7 +19,8 @@ volatile int8_t  encCounter3;
 volatile boolean state0, lastState, turnFlag;
 //-------encoder-------------
 //-------rele----------------
-const int relePin=13;
+const int relePin=12;
+const int relePin13=13;
 bool rele=false;
 //-------rele----------------
 //-------termometr-----------
@@ -117,6 +118,7 @@ void setup() {
 //-------termometr------------
 //-------rele-----------------
     pinMode(relePin, OUTPUT);
+    pinMode(relePin13, OUTPUT);
 //-------rele-----------------
 //-------display--------------
     pinMode(latchPin, OUTPUT);
@@ -175,7 +177,8 @@ void loop() {
 
       if     (tempVar>encCounter1) rele=true;
       else if(tempVar<encCounter2) rele=false;
-      digitalWrite(relePin, rele); //в реальном реле управление по минусу(временно 13 диод по +)
+      digitalWrite(relePin, !rele); //само реле по минусу + выносная индикация
+      digitalWrite(relePin13, rele); // индикация работы реле на плате
       }
 
 
