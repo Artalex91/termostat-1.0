@@ -8,6 +8,8 @@ volatile uint32_t SWFlagMill=0;
 uint8_t modeBlink=0;
 volatile uint32_t modeMill=0;
 bool modeMillFlag=false;
+uint32_t saveMill=0;
+bool saveFlag=false;
 //-------mode----------------
 //-------encoder-------------
 const int SWPin=3;
@@ -153,6 +155,7 @@ void loop() {
     delay(10);
     encCounter2 = eeprom_read_word(2);
     delay(10);
+    encCounter3=0;
     mode=0; 
     modeMillFlag=false;
     }
@@ -250,7 +253,7 @@ void loop() {
 
       if(millis()-mill>500){
         mill=millis();
-        if     (modeBlink==0) modeBlink=1;
+        if     (modeBlink==0 && encCounter3!=0) modeBlink=1;
         else if(modeBlink==1) modeBlink=0;
       }
       switch (modeBlink) {
@@ -261,6 +264,14 @@ void loop() {
               showNumber(2, 15); // 3я
               showNumber(3, 18);  // 2я
               showNumber(4, 14); // 1я
+              if(saveFlag==false){
+                saveFlag=true;
+                saveMill=millis();
+              }
+              if (saveFlag==true && millis()-saveMill>800){
+                saveFlag=false;
+                encCounter3=1;
+              }
               break;
 
             case 1://no
@@ -291,6 +302,10 @@ void loop() {
     switch (encCounter3){
       case 0:
         encCounter3=0;
+        encCounter1 = eeprom_read_word(0);
+        delay(10);
+        encCounter2 = eeprom_read_word(2);
+        delay(10);
         var1 = tempVar / 100;
         var2 = tempVar % 100 / 10;
         var3 = tempVar % 10;
@@ -299,6 +314,10 @@ void loop() {
       
       case 1:
         encCounter3=0;
+        encCounter1 = eeprom_read_word(0);
+        delay(10);
+        encCounter2 = eeprom_read_word(2);
+        delay(10);
         var1 = tempVar / 100;
         var2 = tempVar % 100 / 10;
         var3 = tempVar % 10;
