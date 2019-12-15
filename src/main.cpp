@@ -34,6 +34,9 @@ int var1=0;
 int var2=0;
 int var3=0;
 int var4=0;
+
+int no_filtered_val;
+float k=0.04;
 //-------termometr-----------
 //-------display-------------
 bool dot=false; // отображение точки
@@ -120,6 +123,7 @@ void setup() {
 //-------termometr------------
 //-------rele-----------------
     pinMode(relePin, OUTPUT);
+    digitalWrite(relePin, HIGH);
     pinMode(relePin13, OUTPUT);
 //-------rele-----------------
 //-------display--------------
@@ -162,14 +166,20 @@ void loop() {
 
   switch (mode){
     case 0:
-      if(millis()-mill>500){//события каждые полсекунды
+      if(millis()-mill>250){//события каждые полсекунды
         mill=millis();
         //----------termometr-----------------
         reading = analogRead(A0);        // получаем значение с аналогового входа A0 (0-110 градусов)
         tempC = reading / 9.31;          // переводим в цельсии 
        // Serial.print(tempC);            // отправляем в монитор порта
        // Serial.println(" C");
-        tempVar=tempC*10;              //переводим float в int(4 значное число)
+        no_filtered_val=tempC*10;              //переводим float в int(4 значное число)
+
+
+            // tempVar - фильтрованное значение
+            // no_filtered_val - новое значение (с датчика)
+            // k - коэффициент фильтрации 0.. 1. Обычно около 0.01-0.1 (то бишь float)
+            tempVar = tempVar * (1 - k) + no_filtered_val * k;
         //----------termometr-------------------
 
         var1 = tempVar / 100;
