@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <avr/eeprom.h>
-
+#include <avr/wdt.h> //вачдог
 //-------mode----------------
 int mode=0;
 volatile bool SWFlag=false;
@@ -140,10 +140,12 @@ void setup() {
     encCounter2 = eeprom_read_word(2);
     delay(10);
 //--------display-------------
+wdt_enable(WDTO_8S);// вачдог
 }
   
 void loop() {
   
+wdt_reset(); //вачдог
 
   if(digitalRead(SWPin)==LOW && SWFlag==true && millis()-SWFlagMill>100){
     SWFlag=false;
